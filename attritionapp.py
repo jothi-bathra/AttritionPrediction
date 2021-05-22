@@ -44,19 +44,40 @@ def input():
 
         prediction=model.predict([at])
         if prediction==0:
-            msg="The eomployee will stay in the company"
+            msg="The eomployee will stay in the company 😁"
         else:
-            msg="The employee will leave the company"
+            msg="The employee will leave the company 🙁 "
 
-        data=pd.read_csv("Attrition.csv")
-        img = StringIO()
-        #sns.countplot(x='JobRole',hue='Attrition',data=data)
-        plt.plot(data['Attrition'],data['MonthlyIncome'])
-        plt.savefig(img, format='png')
-        plt.close()
-        img.seek(0)
-        plot=base64.b64encode(img.getvalue())
-        return render_template('output.html',msg=msg,plot=plot)
+        data=pd.read_csv("new.csv")
+        a=list(data.groupby('Department')['PerformanceRating'].mean())
+
+        bar_chart = pygal.Bar(height=400)
+# naming the title
+        bar_chart.title = 'ratings'
+
+        bar_chart.add('HR', a[0])
+        bar_chart.add('R and D', a[1])
+        bar_chart.add('Sales', a[2])
+
+        bar_chart = bar_chart.render_data_uri() 
+
+        c=list(data.groupby('Attrition')['Age'].mean())
+        chart = pygal.Bar(height=400)
+        chart.title = 'Attrition vs age'
+        chart.add('No', c[0])
+        chart.add('Yes', c[1])
+        chart1 = chart.render_data_uri() 
+        
+        html = render_template(
+        'output.html',
+        msg=msg,
+        chart=bar_chart,
+        chart1=chart1
+       
+    )
+    return (html)
+
+      
 
 
 
